@@ -40,7 +40,7 @@ def show_img_with_boxes(img_path, txt_path, save=False):
     if save:
         cv2.imwrite('data/output/test.png', img)
     logging.info(f'show img {img_path} with {len(boxes.keys())} categories and {boxes_counter} boxes')
-    cv2.imshow('test', img)
+    cv2.imshow(img_path, img)
     cv2.waitKey()
     cv2.destroyAllWindows()
 

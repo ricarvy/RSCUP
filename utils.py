@@ -38,9 +38,9 @@ def read_boxes_from_txt(txt_path):
             data = np.array(line.split(' '))
             b = data[:8].astype('int')
             tag = data[-2]
-            dificulty = data[-1].astype('int')
+            difficulty = data[-1].astype('int')
             box.append(position_transfer(b))
-            box.append(dificulty)
+            box.append(difficulty)
             if tag not in boxes.keys():
                 boxes[tag] = []
             boxes[tag].append(box)
