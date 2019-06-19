@@ -17,7 +17,8 @@ if __name__ == '__main__':
     txt_path = 'data/txt/P9895.txt'
     img_path = 'data/img/test_img.png'
     # show_img_with_boxes(img_path, txt_path, save=True)
-    iou = cal_iou(img_path, np.array([(1,1),(1,3),(4,1),(4,3)]), np.array([(3,1),(3,5),(6,1),(6,5)]))
+    iou = cal_iou(np.array([(0,0),(250,0),(250,400),(0,400)]),
+                  np.array([(0,0),(500,0),(500,200),(0,200)]))
     print(iou)
 
 

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import gc
+import matplotlib.pyplot as plt
 
 
 import logging
@@ -33,7 +34,7 @@ def read_boxes_from_txt(txt_path):
     '''
     boxes = {}
     box = []
-    dificulty = 0
+    difficulty = 0
     for line_idx, line in enumerate(open(txt_path, 'r')):
         if line_idx >= 2:
             data = np.array(line.split(' '))
@@ -49,21 +50,25 @@ def read_boxes_from_txt(txt_path):
     return boxes
 
 ### 计算任意形状的两个四边形的IOU
-def cal_iou(image_path, pts1, pts2):
-    image = cv2.imread(image_path)
-    pts1 = [[pt1, pt2] for pt1, pt2 in pts1]
-    pts2 = [[pt1, pt2] for pt1, pt2 in pts2]
+def cal_iou(pts1, pts2):
+    '''
+    Warning: The order should be up-left --> up_right --> down_right --> dowm_left
+    :param pts1:like [(134,123),(156,124),(235,353),(123,564)]
+    :param pts2: like [(134,123),(156,124),(235,353),(123,564)]
+    :return: IOU value
+    '''
+    # image = cv2.imread(image_path)
+    image = np.zeros((1080, 1920, 3), np.uint8)
+    pts1 = np.array([[pt1, pt2] for pt1, pt2 in pts1]) - 1
+    pts2 = np.array([[pt1, pt2] for pt1, pt2 in pts2]) - 1
     original_grasp_bboxes = np.expand_dims(pts1, 0)
     prediction_grasp_bboxes = np.expand_dims(pts2, 0)
-    # original_grasp_bboxes = np.array([[[361, 260.582], [301, 315], [320, 336], [380, 281.582]]], dtype=np.int32)
-    # prediction_grasp_bboxes = np.array([[[301, 290.582], [321, 322], [310, 346], [380, 291.582]]], dtype=np.int32)
     im = np.zeros(image.shape[:2], dtype="uint8")
     im1 = np.zeros(image.shape[:2], dtype="uint8")
-    original_grasp_mask = cv2.fillPoly(im, original_grasp_bboxes, 255)
-    prediction_grasp_mask = cv2.fillPoly(im1, prediction_grasp_bboxes, 255)
-    masked_and = cv2.bitwise_and(original_grasp_mask, prediction_grasp_mask, mask=im)
+    original_grasp_mask = cv2.fillPoly(im, [original_grasp_bboxes], (255,255,255))
+    prediction_grasp_mask = cv2.fillPoly(im1, [prediction_grasp_bboxes], (255,255,255))
+    masked_and = cv2.bitwise_and(original_grasp_mask, prediction_grasp_mask)
     masked_or = cv2.bitwise_or(original_grasp_mask, prediction_grasp_mask)
-
     or_area = np.sum(np.float32(np.greater(masked_or, 0)))
     and_area = np.sum(np.float32(np.greater(masked_and, 0)))
     IOU = and_area / or_area
