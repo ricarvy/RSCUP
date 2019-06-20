@@ -74,7 +74,29 @@ def cal_iou(pts1, pts2):
     IOU = and_area / or_area
     return IOU
 
+def decode_position(img, x, y, w, h):
+    '''
+
+    :param img: 3D array like (Width, Height, Channels)
+    :param x: position x
+    :param y: position y
+    :param w: ratio w
+    :param h: ratio h
+    :return:object like [(x0, y0), (x1, y1), (x2, y2), (x3, y3)]
+    '''
+    ### xs should be constructed like [x0, x1, x2, x3]
+    xs = []
+    ### ys should be constructed like [y0, y1, y2, y3]
+    ys = []
+    ### prepare for your work..
+
+    ### end your work
+    result = []
+    for xy in zip(xs, ys):
+        result.append(xy)
+    return result
+
 if __name__ == '__main__':
-    a = np.array([(1,2),(3,4),(5,6),(7,8)])
-    b = a.copy()
-    c = cal_iou(None, a, b)
+    # a = np.array([(1,2),(3,4),(5,6),(7,8)])
+    # b = a.copy()
+    # c = cal_iou(None, a, b)

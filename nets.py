@@ -3,6 +3,7 @@ import tensorflow as tf
 import keras
 import keras.backend as K
 import random
+import configs as cfg
 
 from keras.layers import Input, Convolution2D, BatchNormalization, MaxPooling2D, ZeroPadding2D, Lambda, Concatenate
 from keras.layers.advanced_activations import LeakyReLU
@@ -136,6 +137,8 @@ class Darknet19(object):
         net.fit(X, y, batch_size=batch_size)
 
 if __name__ == '__main__':
-    images = np.random.randint(0, 255, (5, 416, 416, 3))
-    labels = np.random.randint(0, 9999, (5, 13, 13, 425))
+    images_shape = (cfg.batch_size, cfg.input_shape[0], cfg.input_shape[1], cfg.input_shape[2])
+    images = np.random.randint(0, 255, images_shape)
+    labels_shape = (cfg.batch_size, cfg.output_shape[0], cfg.output_shape[1], (cfg.num_classes+5)*cfg.num_anchors)
+    labels = np.random.randint(0, 9999, labels_shape)
     darknet = Darknet19(images, labels)
