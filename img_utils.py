@@ -26,20 +26,33 @@ def hextoRgb(hex):
     return tuple([int(o, 16) for o in opt])
 
 ### 显示单张描绘出边界框的图片
-def show_img_with_boxes(img_path, txt_path, save=False):
+def show_img_with_boxes(img_path, txt_path, categories=None, save=False):
     boxes_counter = 0
     color_csv = 'data/color.csv'
     boxes = read_boxes_from_txt(txt_path)
     img = cv2.imread(img_path)
-    for k in boxes.keys():
-        for data in boxes[k]:
-            pts = data[0]
-            color = hextoRgb(read_color_from_csv_acord_cat(str(k), color_csv))
-            drawRect(img, pts, color=color)
-            boxes_counter += 1
+    if not categories:
+        for k in boxes.keys():
+            for data in boxes[k]:
+                pts = data[0]
+                color = hextoRgb(read_color_from_csv_acord_cat(str(k), color_csv))
+                drawRect(img, pts, color=color)
+                boxes_counter += 1
+        logging.info(f'show img {img_path} with {len(boxes.keys())} categories and {boxes_counter} boxes')
+    else:
+        assert len(categories) != 0
+        for k in categories:
+            if k not in boxes.keys():
+                logging.info(f'Categories input {k} not in {txt_path}!')
+            else:
+                for data in boxes[k]:
+                    pts = data[0]
+                    color = hextoRgb(read_color_from_csv_acord_cat(str(k), color_csv))
+                    drawRect(img, pts, color=color)
+                    boxes_counter += 1
+        logging.info(f'show img {img_path} with {len(categories)} categories and {boxes_counter} boxes')
     if save:
         cv2.imwrite('data/output/test.png', img)
-    logging.info(f'show img {img_path} with {len(boxes.keys())} categories and {boxes_counter} boxes')
     cv2.imshow(img_path, img)
     cv2.waitKey()
     cv2.destroyAllWindows()
@@ -68,5 +81,5 @@ def compute_area(points):
     return abs(s/2.0)
 
 if __name__ == '__main__':
-    poly=[[1,2], [4,2],[3,2], [2,2]]
+    poly=[[1,1], [1,3],[3,3], [3,1]]
     print(compute_area(poly))
