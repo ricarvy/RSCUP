@@ -2,6 +2,7 @@ import cv2
 import re
 import pandas as pd
 import gc
+import numpy as np
 
 from utils import read_boxes_from_txt
 
@@ -12,8 +13,14 @@ logging.basicConfig(level=logging.DEBUG,
 gc.enable()
 
 ### 画线函数，四条线组成一个框
-def drawRect(img, pts, color, lineWidth=1):
+def drawRect(img, pts, color, lineWidth=1, use_modify=False):
     assert len(pts) == 4 and type(pts[0]) == tuple
+    if use_modify:
+        pts_temp = np.array(pts)
+        pts_x, pts_y = pts_temp[:,0], pts_temp[:,1]
+        x_min, y_min = np.min(pts_x), np.min(pts_y)
+        x_max, y_max = np.max(pts_x), np.max(pts_y)
+        pts = [(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min)]
     for i in range(4):
         cv2.line(img, pts[i % 4], pts[(i+1) % 4], color, lineWidth)
 
@@ -26,7 +33,7 @@ def hextoRgb(hex):
     return tuple([int(o, 16) for o in opt])
 
 ### 显示单张描绘出边界框的图片
-def show_img_with_boxes(img_path, txt_path, categories=None, save=False):
+def show_img_with_boxes(img_path, txt_path, categories=None, save=False, show=False, use_modify=False):
     boxes_counter = 0
     color_csv = 'data/color.csv'
     boxes = read_boxes_from_txt(txt_path)
@@ -36,9 +43,9 @@ def show_img_with_boxes(img_path, txt_path, categories=None, save=False):
             for data in boxes[k]:
                 pts = data[0]
                 color = hextoRgb(read_color_from_csv_acord_cat(str(k), color_csv))
-                drawRect(img, pts, color=color)
+                drawRect(img, pts, color=color, use_modify=use_modify)
                 boxes_counter += 1
-        logging.info(f'show img {img_path} with {len(boxes.keys())} categories and {boxes_counter} boxes')
+        logging.info(f'show img {img_path} with {len(boxes.keys())} categories: {boxes.keys()} and {boxes_counter} boxes')
     else:
         assert len(categories) != 0
         for k in categories:
@@ -48,14 +55,15 @@ def show_img_with_boxes(img_path, txt_path, categories=None, save=False):
                 for data in boxes[k]:
                     pts = data[0]
                     color = hextoRgb(read_color_from_csv_acord_cat(str(k), color_csv))
-                    drawRect(img, pts, color=color)
+                    drawRect(img, pts, color=color, use_modify=use_modify)
                     boxes_counter += 1
         logging.info(f'show img {img_path} with {len(categories)} categories and {boxes_counter} boxes')
     if save:
         cv2.imwrite('data/output/test.png', img)
-    cv2.imshow(img_path, img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    if show:
+        cv2.imshow(img_path, img)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
 
 
 ### 根据输入的类别匹配边界框颜色

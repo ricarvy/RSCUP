@@ -13,9 +13,10 @@ logging.basicConfig(level=logging.DEBUG,
 gc.enable()
 
 if __name__ == '__main__':
-
-    txt_path = 'data/txt/P9895.txt'
-    img_path = 'data/img/test_img.png'
-    show_img_with_boxes(img_path, txt_path, categories=['large-vehicle'], save=True)
+    no = 'P10466'
+    base_dir = 'data/rssrai2019_object_detection/train/'
+    txt_path = f'{base_dir}labelTxt/labelTxt/{no}.txt'
+    img_path = f'{base_dir}images/part6/{no}.png'
+    show_img_with_boxes(img_path, txt_path, categories=None, save=False, show=True, use_modify=True)
 
 

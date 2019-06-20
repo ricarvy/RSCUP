@@ -103,8 +103,8 @@ def decode_position(img, cell, x, y, w, h, S=13):
 
     p1 = [xc - 0.5 * wb, yc + 0.5 * hb]
     p2 = [xc + 0.5 * wb, yc + 0.5 * hb]
-    p3 = [xc - 0.5 * wb, yc - 0.5 * hb]
-    p4 = [xc + 0.5 * wb, yc - 0.5 * hb]
+    p3 = [xc + 0.5 * wb, yc - 0.5 * hb]
+    p4 = [xc - 0.5 * wb, yc - 0.5 * hb]
 
     xs = [p1[0], p2[0], p3[0], p4[0]]
     ys = [p1[1], p2[1], p3[1], p4[1]]

@@ -58,7 +58,7 @@ class Darknet19(object):
         self.net = self.build_net(images)
         self.train_op = self.train(images, labels)
 
-    def build_net(self, images, n_last_channels=425):
+    def build_net(self, images, n_last_channels=(cfg.num_classes + 5) * cfg.num_anchors):
         input_shape = images[0].shape
         inputs = Input(shape=input_shape)
         net = conv2d(inputs, filters=32, kernel_size=3, padding_size=1,

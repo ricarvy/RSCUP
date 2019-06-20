@@ -3,7 +3,7 @@ input_shape = [416, 416, 3]
 output_shape = [13, 13]
 
 ### output format configs
-num_classes = 80
+num_classes = 18
 num_anchors = 5
 
 ### train configs
