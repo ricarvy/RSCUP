@@ -75,35 +75,53 @@ def cal_iou(pts1, pts2):
     IOU = and_area / or_area
     return IOU
 
-def decode_position(img, cell_position, x, y, wb, hb):
+
+def decode_position(img, cell, x, y, w, h, S=13):
     '''
 
-    :param img: 3D array like (Width, Height, Channels)
-    :param img: 2D array like (x_col, y_row)
-    :param x: position x
-    :param y: position y
-    :param w: ratio w
-    :param h: ratio h
+    :param img: 3D array like (wi, hi, Channels) for the img
+    :param cell: 2D array like (xcol, yrow)
+    :param x: position x(after nomalization)
+    :param y: position y(after nomalization)
+    :param w: ratio w = wb/wi
+    :param h: ratio h = hb/hi
     :return:object like [(x0, y0), (x1, y1), (x2, y2), (x3, y3)]
+    :default S: 7
     '''
     ### xs should be constructed like [x0, x1, x2, x3]
-    xs = []
+    # xs = []
     ### ys should be constructed like [y0, y1, y2, y3]
-    ys = []
+    # ys = []
     ### prepare for your work..
 
+    cell0,cell1=cell
+
+    xc = (x + cell0) * img.shape[0] / S
+    yc = (y + cell1) * img.shape[1] / S
+    wb = w * img.shape[0]
+    hb = h * img.shape[1]
+
+    p1 = [xc - 0.5 * wb, yc + 0.5 * hb]
+    p2 = [xc + 0.5 * wb, yc + 0.5 * hb]
+    p3 = [xc - 0.5 * wb, yc - 0.5 * hb]
+    p4 = [xc + 0.5 * wb, yc - 0.5 * hb]
+
+    xs = [p1[0], p2[0], p3[0], p4[0]]
+    ys = [p1[1], p2[1], p3[1], p4[1]]
     ### end your work
     result = []
     for xy in zip(xs, ys):
         result.append(xy)
     return result
 
+
 if __name__ == '__main__':
     img = np.random.randint(0, 255, (416, 416, 3))
     S = 13
     test_cell_position = (3,4)
-    test_x = 16
-    test_y = 16
+    test_x = 0.5
+    test_y = 0.5
     test_w = 13 / 416
     test_h = 13 / 416
-    result = decode_position(img, cell_position=test_cell_position, x=test_x, y=test_y, wb=test_w, hb=test_h)
+    result = decode_position(img, cell=test_cell_position, x=test_x, y=test_y, w=test_w, h=test_h,S=S)
+    print(result)
