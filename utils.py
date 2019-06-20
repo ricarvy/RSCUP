@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import gc
 import matplotlib.pyplot as plt
+import configs as cfg
 
 
 import logging
@@ -74,10 +75,11 @@ def cal_iou(pts1, pts2):
     IOU = and_area / or_area
     return IOU
 
-def decode_position(img, x, y, w, h):
+def decode_position(img, cell_position, x, y, wb, hb):
     '''
 
     :param img: 3D array like (Width, Height, Channels)
+    :param img: 2D array like (x_col, y_row)
     :param x: position x
     :param y: position y
     :param w: ratio w
@@ -97,6 +99,11 @@ def decode_position(img, x, y, w, h):
     return result
 
 if __name__ == '__main__':
-    # a = np.array([(1,2),(3,4),(5,6),(7,8)])
-    # b = a.copy()
-    # c = cal_iou(None, a, b)
+    img = np.random.randint(0, 255, (416, 416, 3))
+    S = 13
+    test_cell_position = (3,4)
+    test_x = 16
+    test_y = 16
+    test_w = 13 / 416
+    test_h = 13 / 416
+    result = decode_position(img, cell_position=test_cell_position, x=test_x, y=test_y, wb=test_w, hb=test_h)
