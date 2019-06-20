@@ -55,7 +55,18 @@ def read_color_from_csv_acord_cat(cat, csv_path):
 
 
 
-if __name__ == '__main__':
-    a = read_color_from_csv_acord_cat('large-vehicle', 'data/color.csv')
-    print(a)
+# if __name__ == '__main__':
+#     a = read_color_from_csv_acord_cat('large-vehicle', 'data/color.csv')
+#     print(a)
 
+def compute_area(points):
+    point_num = len(points)
+    if(point_num < 3): return 0.0
+    s = points[0][1] * (points[point_num-1][0] - points[1][0])
+    for i in range(1, point_num):
+        s += points[i][1] * (points[i-1][0] - points[(i+1)%point_num][0])
+    return abs(s/2.0)
+
+if __name__ == '__main__':
+    poly=[[1,2], [4,2],[3,2], [2,2]]
+    print(compute_area(poly))
