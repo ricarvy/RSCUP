@@ -12,15 +12,24 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 gc.enable()
 
+def modify_points(pts):
+    '''
+
+    :param pts:
+    :return: up_left -> up_right -> down_right -> down_left
+    '''
+    pts_temp = np.array(pts)
+    pts_x, pts_y = pts_temp[:, 0], pts_temp[:, 1]
+    x_min, y_min = np.min(pts_x), np.min(pts_y)
+    x_max, y_max = np.max(pts_x), np.max(pts_y)
+    pts_temp = [(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min)]
+    return pts_temp
+
 ### 画线函数，四条线组成一个框
 def drawRect(img, pts, color, lineWidth=1, use_modify=False):
     assert len(pts) == 4 and type(pts[0]) == tuple
     if use_modify:
-        pts_temp = np.array(pts)
-        pts_x, pts_y = pts_temp[:,0], pts_temp[:,1]
-        x_min, y_min = np.min(pts_x), np.min(pts_y)
-        x_max, y_max = np.max(pts_x), np.max(pts_y)
-        pts = [(x_min, y_max), (x_max, y_max), (x_max, y_min), (x_min, y_min)]
+        pts = modify_points(pts)
     for i in range(4):
         cv2.line(img, pts[i % 4], pts[(i+1) % 4], color, lineWidth)
 
@@ -73,7 +82,61 @@ def read_color_from_csv_acord_cat(cat, csv_path):
     color_df['cat'] = color_df['cat'].apply(lambda x:x.split('(')[-1][:-1])
     return color_df[color_df['cat'] == cat]['color'].values[0]
 
+def cal_centeroid(ground_truths):
+    '''
+    计算四边形的中心点坐标
+    :param ground_truths: json like object,
+    {
+        'large_vehicle':[[(341, 292),...,(346, 457), 0], [(341, 292),...,(346, 457), 1]...],
+        'small_vehicle':[[(341, 292),...,(346, 457), 0], [(341, 292),...,(346, 457), 0]...]
+    }
+    :return: centeroids: json like object,
+    {
+        'large_vehicle':[(352.3,378.9), (352.3,378.9)...],
+        'small_vehicle':[(352.3,378.9), (352.3,378.9)...]
+    }
+    '''
+    centeroids = {}
+    for k in ground_truths.keys():
+        centeroids[k] = []
+    for k in ground_truths.keys():
+        obj = ground_truths[k]
+        for bbox in obj:
+            box = np.array(bbox[0])
+            box = np.array(modify_points(box))
+            x_min, x_max = box[0][0], box[1][0]
+            y_min, y_max = box[2][1], box[1][1]
+            centeroids[k].append(((x_max + x_min)/2, (y_max + y_min)/2))
+    return centeroids
 
+def confirm_cell_index(img_size, S, centeroids):
+    '''
+
+    :param img_size: a tuple like (H, W)
+    :param S: np.sqrt(num of grid cells)
+    :param centeroid: json like object,
+    {
+        'large_vehicle':[(352.3,378.9), (352.3,378.9)...],
+        'small_vehicle':[(352.3,378.9), (352.3,378.9)...]
+    }
+    :return: json like object,
+    {
+        'large_vehicle':[(3,4), (5,3)...],
+        'small_vehicle':[(2,5), (3,3)...]
+    }
+    '''
+    step = int(img_size[0] / S)
+    centeroid_idx = dict()
+    for k in centeroids.keys():
+        centeroid_idx[k] = []
+    for k in centeroids.keys():
+        centers = centeroids[k]
+        for pt in centers:
+            x_pt, y_pt = pt
+            assert x_pt <= img_size[0] and y_pt <= img_size[0]
+            x_idx, y_idx = int(x_pt) // step, int(y_pt) // step
+            centeroid_idx[k].append((x_idx, y_idx))
+    return centeroid_idx
 
 
 # if __name__ == '__main__':
@@ -89,5 +152,5 @@ def compute_area(points):
     return abs(s/2.0)
 
 if __name__ == '__main__':
-    poly=[[1,1], [1,3],[3,3], [3,1]]
-    print(compute_area(poly))
+    img_size = [416, 416]
+    S = 13

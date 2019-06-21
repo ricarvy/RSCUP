@@ -11,6 +11,8 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 gc.enable()
 
+
+
 ### 读入八个坐标点值
 ### [x0, y0, x1, y1, x2, y2, x3, y3] -> [(x0, y0), (x1,y1), (x2, y2), (x3, y3)]
 def position_transfer(l):
@@ -36,10 +38,13 @@ def read_boxes_from_txt(txt_path):
     boxes = {}
     box = []
     difficulty = 0
-    for line_idx, line in enumerate(open(txt_path, 'r')):
-        if line_idx >= 2:
+    line_idx = -1
+    for _, line in enumerate(open(txt_path, 'r')):
+        if line != '\n':
+            line_idx += 1
+        if line_idx >= 2 and line != '\n':
             data = np.array(line.split(' '))
-            b = data[:8].astype('int')
+            b = np.array([int(float(d)) for d in data[:8]])
             tag = data[-2]
             difficulty = data[-1].astype('int')
             box.append(position_transfer(b))
@@ -113,6 +118,8 @@ def decode_position(img, cell, x, y, w, h, S=13):
     for xy in zip(xs, ys):
         result.append(xy)
     return result
+
+
 
 
 if __name__ == '__main__':
